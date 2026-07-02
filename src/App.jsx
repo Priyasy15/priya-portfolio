@@ -8,6 +8,7 @@ import Experience from './components/Experience'
 import Education from './components/Education'
 import Contact from './components/Contact'
 import Footer from './components/Footer'
+import ScrollReveal from './components/ScrollReveal'
 
 export default function App() {
   const glowRef = useRef(null)
@@ -40,12 +41,12 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Experience />
-        <Education />
-        <Contact />
+        <ScrollReveal><About /></ScrollReveal>
+        <ScrollReveal delay={0.1}><Skills /></ScrollReveal>
+        <ScrollReveal delay={0.1}><Projects /></ScrollReveal>
+        <ScrollReveal delay={0.1}><Experience /></ScrollReveal>
+        <ScrollReveal delay={0.1}><Education /></ScrollReveal>
+        <ScrollReveal delay={0.1}><Contact /></ScrollReveal>
       </main>
       <Footer />
     </>
