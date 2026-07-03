@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { info } from '../data/portfolio'
 
 const lines = [
@@ -7,6 +7,13 @@ const lines = [
   { command: 'stack', output: 'React · Supabase · Python · R' },
   { command: 'location', output: 'Vellore, Tamil Nadu, India' },
   { command: 'status', output: 'Open to opportunities ✓' },
+]
+
+const stats = [
+  { value: 8.74, label: 'CGPA', suffix: '', decimals: 2 },
+  { value: 22, label: 'Showrooms', suffix: '+', decimals: 0 },
+  { value: 94, label: 'Staff Managed', suffix: '+', decimals: 0 },
+  { value: 100, label: 'Production Ready', suffix: '%', decimals: 0 },
 ]
 
 function useTypewriter(text, speed = 40, start = true) {
@@ -30,6 +37,62 @@ function useTypewriter(text, speed = 40, start = true) {
   }, [text, start])
 
   return { displayed, done }
+}
+
+function useCountUp(target, decimals = 0, duration = 1800, start = false) {
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (!start) return
+    let startTime = null
+    const step = (timestamp) => {
+      if (!startTime) startTime = timestamp
+      const progress = Math.min((timestamp - startTime) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(parseFloat((eased * target).toFixed(decimals)))
+      if (progress < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
+  }, [start, target])
+
+  return count
+}
+
+function StatCard({ value, label, suffix, decimals, animate }) {
+  const count = useCountUp(value, decimals, 1800, animate)
+
+  return (
+    <div style={{
+      background: 'var(--card)',
+      border: '0.5px solid var(--border)',
+      borderRadius: '10px',
+      padding: '1.2rem 1.4rem',
+      textAlign: 'center',
+      transition: 'border-color 0.2s',
+    }}
+      onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--border2)'}
+      onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--border)'}
+    >
+      <div style={{
+        fontFamily: 'var(--serif)',
+        fontSize: '2rem',
+        color: 'var(--teal)',
+        lineHeight: 1,
+        marginBottom: '0.4rem',
+      }}>
+        {decimals > 0 ? count.toFixed(decimals) : Math.floor(count)}{suffix}
+      </div>
+      <div style={{
+        fontFamily: 'var(--mono)',
+        fontSize: '11px',
+        color: 'var(--text-dim)',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+      }}>
+        {label}
+      </div>
+    </div>
+  )
 }
 
 function TerminalLine({ command, output, onDone, active }) {
@@ -76,12 +139,16 @@ function TerminalLine({ command, output, onDone, active }) {
 export default function Hero() {
   const [currentLine, setCurrentLine] = useState(0)
   const [allDone, setAllDone] = useState(false)
+  const [startStats, setStartStats] = useState(false)
 
   const handleLineDone = (index) => {
     if (index < lines.length - 1) {
       setTimeout(() => setCurrentLine(index + 1), 300)
     } else {
-      setTimeout(() => setAllDone(true), 400)
+      setTimeout(() => {
+        setAllDone(true)
+        setTimeout(() => setStartStats(true), 400)
+      }, 400)
     }
   }
 
@@ -104,7 +171,6 @@ export default function Hero() {
           overflow: 'hidden',
           boxShadow: '0 0 60px rgba(91,210,166,0.08)',
         }}>
-
           {/* Terminal top bar */}
           <div style={{
             display: 'flex',
@@ -138,8 +204,6 @@ export default function Hero() {
                 onDone={() => handleLineDone(i)}
               />
             ))}
-
-            {/* Blinking cursor after all lines done */}
             {allDone && (
               <div style={{
                 fontFamily: 'var(--mono)',
@@ -156,12 +220,31 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* CTA buttons below terminal */}
+        {/* Stats counter — appears after terminal finishes */}
+        {allDone && (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: '0.8rem',
+            marginTop: '1.5rem',
+            animation: 'fadeIn 0.6s ease forwards',
+          }}>
+            {stats.map((stat, i) => (
+              <StatCard
+                key={stat.label}
+                {...stat}
+                animate={startStats}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* CTA buttons */}
         {allDone && (
           <div style={{
             display: 'flex',
             gap: '1rem',
-            marginTop: '2rem',
+            marginTop: '1.5rem',
             flexWrap: 'wrap',
             animation: 'fadeIn 0.6s ease forwards',
           }}>
@@ -207,7 +290,6 @@ export default function Hero() {
 
       </div>
 
-      {/* Blink + fadeIn keyframes */}
       <style>{`
         @keyframes blink {
           0%, 100% { opacity: 1; }
