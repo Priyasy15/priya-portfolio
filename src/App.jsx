@@ -10,6 +10,7 @@ import Contact from './components/Contact'
 import Footer from './components/Footer'
 import ScrollReveal from './components/ScrollReveal'
 
+
 export default function App() {
   const glowRef = useRef(null)
 
@@ -47,6 +48,7 @@ export default function App() {
         <ScrollReveal delay={0.1}><Experience /></ScrollReveal>
         <ScrollReveal delay={0.1}><Education /></ScrollReveal>
         <ScrollReveal delay={0.1}><Contact /></ScrollReveal>
+        
       </main>
       <Footer />
     </>
